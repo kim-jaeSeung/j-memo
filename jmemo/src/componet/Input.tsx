@@ -19,20 +19,15 @@ interface BaseInputProps {
   showError?: boolean;
   successMessage?: string;
   showSuccess?: boolean;
-  as?: "input" | "textarea"; // 렌더링할 요소 타입 추가
+  as?: "input" | "textarea";
 }
-
-type InputProps = BaseInputProps &
-  (BaseInputProps["as"] extends "textarea"
-    ? Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "onChange" | "value">
-    : Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "value">);
 
 //! - value: 필수, 입력값
 //! - onChange: 필수, 값 변경 콜백 함수
 //! - placeholder: 플레이스홀더 텍스트
 //! - className: 추가 CSS 클래스
 //! - maxLength: 최대 입력 길이 (기본값: 100)
-//! - allowedPattern: 허용할 문자 패턴 (기본값: 한글, 영문, 숫자, 특수문자)
+//! - allowedPattern: 허용할 문자 패턴 (기본값: 한글, 영문, 숫자, 안전한 특수문자)
 //! - preventXSS: XSS 방지 여부 (기본값: true)
 //! - trimWhitespace: 공백 제거 여부 (기본값: true)
 //! - validateInput: 커스텀 유효성 검사 함수
@@ -43,6 +38,11 @@ type InputProps = BaseInputProps &
 //! - as: 렌더링할 요소 타입 ('input' | 'textarea', 기본값: 'input')
 //! - ...기타 HTML input/textarea 속성들 (type, disabled, readonly 등)
 
+type InputProps = BaseInputProps &
+  (BaseInputProps["as"] extends "textarea"
+    ? Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "onChange" | "value">
+    : Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "value">);
+
 const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
   (
     {
@@ -51,29 +51,31 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
       placeholder = "",
       className = "",
       maxLength = 100,
-      allowedPattern = /^[가-힣a-zA-Z0-9\s!@#$%^&*()_+\-=\[\]{}|;:,.<>?`~]*$/,
+      // 백틱(`) 제거 - XSS 방지를 위해
+      allowedPattern = /^[가-힣a-zA-Z0-9\s!@#$%^&*()_+\-=\[\]{}|;:,.<>?~]*$/,
       preventXSS = true,
       trimWhitespace = true,
       validateInput,
       errorMessage,
       showError = false,
-      successMessage, // 성공 메시지
-      showSuccess = false, // 성공 메시지 표시 여부
-      as = "input", // 기본값은 input
+      successMessage,
+      showSuccess = false,
+      as = "input",
       ...props
     },
     ref
   ) => {
-    // XSS 방지를 위한 위험한 문자 제거 (하지만 허용된 특수문자는 제외)
+    // XSS 방지를 위한 위험한 문자 제거
     const sanitizeInput = (input: string): string => {
       if (!preventXSS) return input;
 
       return input
-        .replace(/javascript:/gi, "") // javascript: 프로토콜 제거
-        .replace(/on\w+=/gi, "") // 이벤트 핸들러 제거
-        .replace(/<script[\s\S]*?<\/script>/gi, "") // script 태그 제거
-        .replace(/<iframe[\s\S]*?<\/iframe>/gi, "") // iframe 태그 제거
-        .replace(/style\s*=\s*["'][^"']*["']/gi, ""); // style 속성 제거
+        .replace(/`/g, "") // 백틱 제거 추가
+        .replace(/javascript:/gi, "")
+        .replace(/on\w+=/gi, "")
+        .replace(/<script[\s\S]*?<\/script>/gi, "")
+        .replace(/<iframe[\s\S]*?<\/iframe>/gi, "")
+        .replace(/style\s*=\s*["'][^"']*["']/gi, "");
     };
 
     // 입력값 유효성 검사 및 정제
@@ -82,32 +84,23 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
     ) => {
       let inputValue = e.target.value;
 
-      // 최대 길이 제한
       if (inputValue.length > maxLength) {
         inputValue = inputValue.slice(0, maxLength);
       }
 
-      // XSS 방지 (먼저 처리)
       inputValue = sanitizeInput(inputValue);
 
-      // 허용된 패턴 검사 (한글 조합 과정 모두 허용)
       if (allowedPattern && inputValue !== "") {
-        // 한글 관련 문자인지 확인 (자음, 모음, 완성된 한글 모두 허용)
         const hasKorean = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(inputValue);
-
-        // 한글이 포함되어 있으면 일단 허용 (조합 과정 고려)
-        // 한글이 없는 경우에만 패턴 검사
         if (!hasKorean && !allowedPattern.test(inputValue)) {
-          return; // 패턴에 맞지 않으면 입력을 막음
+          return;
         }
       }
 
-      // 커스텀 유효성 검사
       if (validateInput && !validateInput(inputValue) && inputValue !== "") {
         return;
       }
 
-      // 최종 값 전달
       onChange(inputValue);
     };
 
@@ -117,19 +110,25 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
     ) => {
       let finalValue = value;
 
-      // 공백 제거만 수행 (패턴 검사는 onChange에서 이미 처리)
       if (trimWhitespace && finalValue) {
         finalValue = finalValue.trim();
       }
 
-      // 값이 변경되었으면 업데이트
       if (finalValue !== value) {
         onChange(finalValue);
       }
 
-      // 기존 onBlur 이벤트 실행
+      // 타입 안전한 onBlur 처리
       if (props.onBlur) {
-        props.onBlur(e as any);
+        if (as === "textarea") {
+          (
+            props.onBlur as unknown as React.FocusEventHandler<HTMLTextAreaElement>
+          )?.(e as React.FocusEvent<HTMLTextAreaElement>);
+        } else {
+          (props.onBlur as React.FocusEventHandler<HTMLInputElement>)?.(
+            e as React.FocusEvent<HTMLInputElement>
+          );
+        }
       }
     };
 
@@ -151,6 +150,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
           }
         : {};
 
+    // 공통 props 정의 (타입 안전)
     const commonProps = {
       value,
       placeholder,
@@ -160,7 +160,6 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
       autoComplete: "off" as const,
       spellCheck: false,
       style: textareaStyle,
-      ...props,
     };
 
     return (
@@ -168,13 +167,21 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
         {as === "textarea" ? (
           <textarea
             ref={ref as React.Ref<HTMLTextAreaElement>}
-            {...(commonProps as any)}
+            {...commonProps}
+            {...(props as Omit<
+              TextareaHTMLAttributes<HTMLTextAreaElement>,
+              keyof typeof commonProps
+            >)}
           />
         ) : (
           <input
             ref={ref as React.Ref<HTMLInputElement>}
             type="text"
-            {...(commonProps as any)}
+            {...commonProps}
+            {...(props as Omit<
+              InputHTMLAttributes<HTMLInputElement>,
+              keyof typeof commonProps
+            >)}
           />
         )}
 
