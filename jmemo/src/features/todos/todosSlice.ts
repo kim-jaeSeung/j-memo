@@ -32,7 +32,7 @@ const todosSlice = createSlice({
           x: Math.random() * 600 + 200, // 200~800px
           y: Math.random() * 550 + 50, // 50~300px 고정
         },
-        createdAt: new Date().toLocaleDateString(),
+        createdAt: new Date().toLocaleDateString().replace(/\.$/, ""),
       };
 
       console.log("고정 범위 Todo 위치:", newTodo.position);

@@ -81,12 +81,14 @@ function Todo({ todo }: TodoProps) {
           </div>
         </div>
 
-        <div className="flex-1 mb-4">
-          <textarea
-            className="outline-none w-full h-full text-black text-xl bg-transparent resize-none"
-            placeholder="내용을 입력하세요."
+        <div className="flex-1 h-full mb-4">
+          <Input
+            as="textarea"
             value={todo.content}
-            onChange={(e) => handleContentChange(e.target.value)}
+            placeholder="내용을 입력하세요."
+            onChange={handleContentChange}
+            className="w-full h-full text-black text-xl bg-transparent cursor-text"
+            maxLength={1000}
           />
         </div>
 
