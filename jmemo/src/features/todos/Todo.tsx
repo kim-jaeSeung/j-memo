@@ -1,10 +1,9 @@
 "use client";
 import { useState, useRef } from "react";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store/store";
-import { removeTodo, updateTodo, updateTodoPosition } from "./todosSlice";
+import useTodos from "@/hooks/useTodos";
 import Input from "@/componet/Input";
 import Draggable, { DraggableData, DraggableEvent } from "react-draggable";
+
 interface TodoProps {
   todo: {
     id: number;
@@ -18,24 +17,24 @@ interface TodoProps {
 function Todo({ todo }: TodoProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const nodeRef = useRef(null);
-  const dispatch = useDispatch<AppDispatch>();
+  const { removeTodo, updateTodo, updateTodoPosition } = useTodos();
+
   const handleTitleChange = (title: string) => {
-    dispatch(updateTodo({ id: todo.id, title }));
+    updateTodo(todo.id, { title });
   };
+
   const handleContentChange = (content: string) => {
-    dispatch(updateTodo({ id: todo.id, content }));
+    updateTodo(todo.id, { content });
   };
+
   const handleRemove = () => {
-    dispatch(removeTodo(todo.id));
+    removeTodo(todo.id);
   };
+
   const handleDragStop = (e: DraggableEvent, data: DraggableData) => {
-    dispatch(
-      updateTodoPosition({
-        id: todo.id,
-        position: { x: data.x, y: data.y },
-      })
-    );
+    updateTodoPosition(todo.id, { x: data.x, y: data.y });
   };
+
   return (
     <Draggable
       nodeRef={nodeRef}
@@ -61,7 +60,7 @@ function Todo({ todo }: TodoProps) {
             className="cursor-pointer py-2 pl-2 relative"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            <img className="w-6 h-6" src="/img/menu.svg" alt="" />
+            <img className="w-6 h-6" src="/Image/menu.svg" alt="" />
             {isMenuOpen && (
               <div
                 className="absolute top-8 right-0 bg-white border border-gray-200 rounded shadow-lg p-2 whitespace-nowrap flex flex-col "
