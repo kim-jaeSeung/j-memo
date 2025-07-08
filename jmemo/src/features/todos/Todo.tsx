@@ -2,9 +2,9 @@
 import { useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";
-import { removeTodo, updateTodo } from "./todosSlice";
-
-import Draggable from "react-draggable";
+import { removeTodo, updateTodo, updateTodoPosition } from "./todosSlice";
+import Input from "@/componet/Input";
+import Draggable, { DraggableData, DraggableEvent } from "react-draggable";
 interface TodoProps {
   todo: {
     id: number;
@@ -28,33 +28,34 @@ function Todo({ todo }: TodoProps) {
   const handleRemove = () => {
     dispatch(removeTodo(todo.id));
   };
-  // const handleDragStop = (e: DraggableEvent, data: DraggableData) => {
-  //   dispatch(
-  //     updateTodoPosition({
-  //       id: todo.id,
-  //       position: { x: data.x, y: data.y },
-  //     })
-  //   );
-  // };
+  const handleDragStop = (e: DraggableEvent, data: DraggableData) => {
+    dispatch(
+      updateTodoPosition({
+        id: todo.id,
+        position: { x: data.x, y: data.y },
+      })
+    );
+  };
   return (
     <Draggable
       nodeRef={nodeRef}
-      handle=".drag-handle" // 드래그 핸들 지정
-      // onStop={handleDragStop}
-      defaultPosition={{ x: 100, y: 100 }} // 초기 위치
-      bounds="parent" // 부모 요소 내에서만 이동
+      defaultPosition={todo.position} // position → defaultPosition으로 변경
+      onStop={handleDragStop}
+      bounds="parent"
+      cancel="input, textarea, button, img"
     >
       <div
         ref={nodeRef}
-        className="bg-[#DEFFA5] h-[300px] w-[400px] p-4 flex flex-col rounded-lg drag-handle"
+        className="bg-[#DEFFA5] h-[300px] w-[400px] p-4 flex flex-col rounded-lg shadow-lg cursor-move absolute"
       >
         <div className="flex items-center justify-between mb-4 flex-shrink-0">
-          <input
-            type="text"
+          <Input
             value={todo.title}
-            placeholder="제목"
-            onChange={(e) => handleTitleChange(e.target.value)}
-            className="outline-none block w-full text-[#333c48] text-xl bg-transparent"
+            placeholder={"제목"}
+            onChange={handleTitleChange}
+            className={
+              "outline-none block w-full text-[#333c48] text-xl bg-transparent"
+            }
           />
           <div
             className="cursor-pointer py-2 pl-2 relative"
