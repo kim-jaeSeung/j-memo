@@ -1,9 +1,14 @@
 import React from "react";
+interface MenuProps {
+  onAddTodo: () => void;
+}
 
-function Menu() {
+function Menu({ onAddTodo }: MenuProps) {
   return (
-    <div className="h-full border-r border-gray-200 ">
-      <button className="p-10 cursor-pointer">추가</button>
+    <div className="">
+      <button className="p-10 cursor-pointer bg-white" onClick={onAddTodo}>
+        추가
+      </button>
     </div>
   );
 }
