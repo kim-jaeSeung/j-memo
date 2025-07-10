@@ -17,6 +17,7 @@ interface Todo {
   content: string;
   position: { x: number; y: number };
   createdAt: string;
+  deadline: Date | number;
 }
 
 const useTodos = () => {
@@ -51,7 +52,11 @@ const useTodos = () => {
   // Todo 업데이트
   const handleUpdateTodo = (
     id: number,
-    updates: { title?: string; content?: string }
+    updates: {
+      title?: string;
+      content?: string;
+      deadline?: Date | number;
+    }
   ) => {
     dispatch(updateTodo({ id, ...updates }));
   };
