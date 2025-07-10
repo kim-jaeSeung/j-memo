@@ -1,9 +1,10 @@
 "use client";
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import useTodos from "@/hooks/useTodos";
 import Input from "@/componet/Input";
 import Draggable, { DraggableData, DraggableEvent } from "react-draggable";
 import MemoTime from "@/componet/MemoTime";
+import MemoSet from "@/componet/MemoSet";
 interface TodoProps {
   todo: {
     id: number;
@@ -15,7 +16,6 @@ interface TodoProps {
 }
 
 function Todo({ todo }: TodoProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const nodeRef = useRef(null);
   const { removeTodo, updateTodo, updateTodoPosition } = useTodos();
 
@@ -33,6 +33,10 @@ function Todo({ todo }: TodoProps) {
 
   const handleDragStop = (e: DraggableEvent, data: DraggableData) => {
     updateTodoPosition(todo.id, { x: data.x, y: data.y });
+  };
+
+  const handleDateChanhe = (date: Date | null) => {
+    updateTodo(todo.id, { deadline: date });
   };
 
   return (
@@ -56,28 +60,7 @@ function Todo({ todo }: TodoProps) {
               "outline-none block w-full text-[#333c48] text-xl bg-transparent"
             }
           />
-          <div
-            className="cursor-pointer py-2 pl-2 relative"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <img className="w-6 h-6" src="/Image/menu.svg" alt="" />
-            {isMenuOpen && (
-              <div
-                className="absolute top-8 right-0 bg-white border border-gray-200 rounded shadow-lg p-2 whitespace-nowrap flex flex-col "
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button className="text-left cursor-pointer text-gray-600">
-                  기한 추가
-                </button>
-                <button
-                  className="text-left cursor-pointer text-gray-600"
-                  onClick={() => handleRemove()}
-                >
-                  삭제
-                </button>
-              </div>
-            )}
-          </div>
+          <MemoSet handleRemove={handleRemove} />
         </div>
 
         <div className="flex-1 h-full mb-4">
