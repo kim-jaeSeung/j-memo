@@ -4,8 +4,14 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useState } from "react";
 interface memoSetProps {
   handleRemove: () => void;
+  handleDateChange: (date: Date | null) => void;
+  todoDeadline: Date | null;
 }
-function MemoSet({ handleRemove }: memoSetProps) {
+function MemoSet({
+  handleRemove,
+  handleDateChange,
+  todoDeadline,
+}: memoSetProps) {
   // 메모 설정 메뉴
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   // 메뉴 기한 설정
@@ -33,7 +39,7 @@ function MemoSet({ handleRemove }: memoSetProps) {
             {showDatePicker && (
               <div className="absolute top-0 left-full ml-2">
                 <DatePicker
-                  selected={todo.deadline}
+                  selected={todoDeadline}
                   onChange={handleDateChange}
                   showTimeSelect
                   timeFormat="HH:mm"

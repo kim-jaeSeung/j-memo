@@ -12,6 +12,7 @@ interface TodoProps {
     content: string;
     position: { x: number; y: number };
     createdAt: string;
+    deadline: Date | null;
   };
 }
 
@@ -35,8 +36,8 @@ function Todo({ todo }: TodoProps) {
     updateTodoPosition(todo.id, { x: data.x, y: data.y });
   };
 
-  const handleDateChanhe = (date: Date | null) => {
-    updateTodo(todo.id, { deadline: date });
+  const handleDateChange = (date: Date | null) => {
+    updateTodo(todo.id, { deadline: date ? date.getTime() : 0 });
   };
 
   return (
@@ -60,7 +61,11 @@ function Todo({ todo }: TodoProps) {
               "outline-none block w-full text-[#333c48] text-xl bg-transparent"
             }
           />
-          <MemoSet handleRemove={handleRemove} />
+          <MemoSet
+            handleRemove={handleRemove}
+            handleDateChange={handleDateChange}
+            todoDeadline={todo.deadline ? new Date(todo.deadline) : null}
+          />
         </div>
 
         <div className="flex-1 h-full mb-4">
