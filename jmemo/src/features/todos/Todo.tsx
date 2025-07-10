@@ -40,6 +40,10 @@ function Todo({ todo }: TodoProps) {
     updateTodo(todo.id, { deadline: date ? date.getTime() : 0 });
   };
 
+  const handleDeadlineDelete = () => {
+    updateTodo(todo.id, { deadline: 0 });
+  };
+
   return (
     <Draggable
       nodeRef={nodeRef}
@@ -79,7 +83,11 @@ function Todo({ todo }: TodoProps) {
           />
         </div>
 
-        <MemoTime todoTime={todo.createdAt} />
+        <MemoTime
+          todoTime={todo.createdAt}
+          todoDeadline={todo.deadline ? new Date(todo.deadline) : null}
+          deadlineDelete={handleDeadlineDelete}
+        />
       </div>
     </Draggable>
   );
