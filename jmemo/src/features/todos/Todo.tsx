@@ -3,7 +3,7 @@ import { useState, useRef } from "react";
 import useTodos from "@/hooks/useTodos";
 import Input from "@/componet/Input";
 import Draggable, { DraggableData, DraggableEvent } from "react-draggable";
-
+import MemoTime from "@/componet/MemoTime";
 interface TodoProps {
   todo: {
     id: number;
@@ -91,13 +91,7 @@ function Todo({ todo }: TodoProps) {
           />
         </div>
 
-        <div className="flex justify-between flex-shrink-0 no-drag">
-          <p className="text-sm text-[#333c48]">{todo.createdAt}</p>
-          <div className="cursor-pointer flex items-center gap-2">
-            <img src="/image/close.svg" alt="" className="w-4" />
-            <p className="text-sm text-[#333c48]"> 기한 / 2024.7.5 까지</p>
-          </div>
-        </div>
+        <MemoTime todoTime={todo.createdAt} />
       </div>
     </Draggable>
   );
