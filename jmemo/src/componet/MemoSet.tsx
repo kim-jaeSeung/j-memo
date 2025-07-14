@@ -16,13 +16,22 @@ function MemoSet({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   // 메뉴 기한 설정
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const now = new Date();
+  const filterTime = (time: Date) => {
+    const currentTime = new Date();
+    const selectedDate = new Date(time);
+    if (selectedDate.toDateString() !== currentTime.toDateString()) {
+      return true;
+    }
+    return selectedDate.getTime() > currentTime.getTime();
+  };
   return (
     <>
       <div
         className="cursor-pointer py-2 pl-2 relative"
         onClick={() => setIsMenuOpen(!isMenuOpen)}
       >
-        <img className="w-6 h-6" src="/Image/menu.svg" alt="" />
+        <img className="w-6 h-6" src="/Image/menu.svg" alt="메뉴 아이콘" />
         {isMenuOpen && (
           <div
             className="absolute top-8 right-0 bg-white border border-gray-200 rounded shadow-lg p-2 whitespace-nowrap flex flex-col "
@@ -46,6 +55,8 @@ function MemoSet({
                   timeIntervals={15}
                   dateFormat="yyyy-MM-dd HH:mm"
                   placeholderText="날짜와 시간을 선택하세요"
+                  minDate={now}
+                  filterTime={filterTime}
                   inline
                   calendarClassName="border border-gray-300 rounded shadow-lg bg-white"
                 />

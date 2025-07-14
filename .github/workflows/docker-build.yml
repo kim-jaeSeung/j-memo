@@ -2,10 +2,10 @@ name: Docker Build and Deploy
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
+    # branches: [main]
+  # pull_request:
+  # branches: [main]
+  # workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
