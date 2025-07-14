@@ -46,7 +46,7 @@ function MemoSet({
               기한 추가
             </button>
             {showDatePicker && (
-              <div className="absolute top-0 left-full ml-2">
+              <div className="absolute top-17 right-0 ml-2  w-max bg-white">
                 <DatePicker
                   selected={todoDeadline}
                   onChange={handleDateChange}
@@ -58,8 +58,15 @@ function MemoSet({
                   minDate={now}
                   filterTime={filterTime}
                   inline
-                  calendarClassName="border border-gray-300 rounded shadow-lg bg-white"
                 />
+                <div className="my-2 text-center">
+                  <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={() => setShowDatePicker(false)}
+                  >
+                    확인
+                  </button>
+                </div>
               </div>
             )}
             <button
